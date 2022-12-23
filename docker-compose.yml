@@ -1,0 +1,45 @@
+version: "3.1"
+services:
+  www:
+    build:
+      args:
+        user: andy
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./www:/var/www/html/
+    ports:
+      - "8000:80"
+    links:
+      - db
+    networks:
+      - default
+  db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: user
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
+    volumes:
+      - ./dump:/docker-entrypoint-initdb.d
+      - persistent:/var/lib/mysql
+    networks:
+      - default
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db:db
+    ports:
+      - "8002:80"
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
+    networks:
+      - default
+volumes:
+  persistent:
